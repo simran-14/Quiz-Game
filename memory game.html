@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            margin: 5% auto;
+            width: 80%;
+            max-width: 600px;
+            background-color: #ffffff;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            margin: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #options button {
+            display: block;
+            width: 100%;
+            margin: 10px 0;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="start-screen">
+        <h1>Welcome to the Quiz App!</h1>
+        <button onclick="startQuiz()">Start Quiz</button>
+    </div>
+    
+    <div class="container hidden" id="subject-screen">
+        <h2>Select a Subject:</h2>
+        <button onclick="selectSubject('mathematics')">Mathematics</button>
+        <button onclick="selectSubject('english')">English</button>
+        <button onclick="selectSubject('gk')">General Knowledge</button>
+        <button onclick="selectSubject('science')">Science</button>
+    </div>
+    
+    <div class="container hidden" id="level-screen">
+        <h2>Select Difficulty:</h2>
+        <button onclick="selectLevel('easy')">Easy</button>
+        <button onclick="selectLevel('medium')">Medium</button>
+        <button onclick="selectLevel('hard')">Hard</button>
+    </div>
+    
+    <div class="container hidden" id="quiz-screen">
+        <h2 id="question"></h2>
+        <div id="options"></div>
+        <button onclick="nextQuestion()">Next</button>
+    </div>
+    
+    <div class="container hidden" id="result-screen">
+        <h2>Quiz Completed!</h2>
+        <p>Your Score: <span id="final-score"></span></p>
+        <button onclick="restartQuiz()">Restart Quiz</button>
+    </div>
+
+    <script>
+        let startScreen = document.getElementById('start-screen');
+        let subjectScreen = document.getElementById('subject-screen');
+        let levelScreen = document.getElementById('level-screen');
+        let quizScreen = document.getElementById('quiz-screen');
+        let resultScreen = document.getElementById('result-screen');
+        let questionElem = document.getElementById('question');
+        let optionsElem = document.getElementById('options');
+        let finalScoreElem = document.getElementById('final-score');
+
+        let currentSubject = '';
+        let currentLevel = '';
+        let questions = [];
+        let score = 0;
+        let currentQuestionIndex = 0;
+
+        function startQuiz() {
+            startScreen.classList.add('hidden');
+            subjectScreen.classList.remove('hidden');
+        }
+
+        function selectSubject(subject) {
+            currentSubject = subject;
+            subjectScreen.classList.add('hidden');
+            levelScreen.classList.remove('hidden');
+        }
+
+        function selectLevel(level) {
+            currentLevel = level;
+            questions = allQuestions[currentSubject][currentLevel];
+            levelScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const currentQuestion = questions[currentQuestionIndex];
+            questionElem.innerText = currentQuestion.question;
+            optionsElem.innerHTML = '';
+            currentQuestion.options.forEach(option => {
+                const button = document.createElement('button');
+                button.innerText = option;
+                button.onclick = () => checkAnswer(option);
+                optionsElem.appendChild(button);
+            });
+        }
+
+        function checkAnswer(selectedOption) {
+            const correctAnswer = questions[currentQuestionIndex].answer;
+            if (selectedOption === correctAnswer) {
+                score++;
+            }
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            quizScreen.classList.add('hidden');
+            resultScreen.classList.remove('hidden');
+            finalScoreElem.innerText = `${score} / ${questions.length}`;
+        }
+
+        function restartQuiz() {
+            score = 0;
+            currentQuestionIndex = 0;
+            resultScreen.classList.add('hidden');
+            startScreen.classList.remove('hidden');
+        }
+
+        const allQuestions = {
+            mathematics: {
+                easy: [
+                    { question: "What is 5 + 3?", options: ["5", "6", "7", "8"], answer: "8" },
+                    { question: "What is 2 * 2?", options: ["2", "4", "6", "8"], answer: "4" },
+                    { question: "What is 10 - 7?", options: ["1", "2", "3", "4"], answer: "3" },
+                    { question: "What is 6 / 2?", options: ["1", "2", "3", "4"], answer: "3" },
+                    { question: "What is 7 * 1?", options: ["6", "7", "8", "9"], answer: "7" },
+                    { question: "What is 12 - 4?", options: ["6", "7", "8", "9"], answer: "8" }
+                ],
+                medium: [
+                    { question: "What is 15 / 3?", options: ["3", "5", "7", "9"], answer: "5" },
+                    { question: "What is 12 + 8?", options: ["15", "18", "20", "22"], answer: "20" },
+                    { question: "What is 25 - 7?", options: ["15", "17", "18", "20"], answer: "18" },
+                    { question: "What is 14 / 2?", options: ["5", "6", "7", "8"], answer: "7" },
+                    { question: "What is 16 * 2?", options: ["30", "32", "34", "36"], answer: "32" },
+                    { question: "What is 40 / 5?", options: ["6", "7", "8", "9"], answer: "8" }
+                ],
+                hard: [
+                    { question: "What is 9 * 9?", options: ["72", "81", "90", "99"], answer: "81" },
+                    { question: "What is 81 / 9?", options: ["8", "9", "10", "11"], answer: "9" },
+                    { question: "What is 100 - 37?", options: ["62", "63", "64", "65"], answer: "63" },
+                    { question: "What is 12 * 12?", options: ["140", "142", "144", "146"], answer: "144" },
+                    { question: "What is 50 / 2?", options: ["20", "24", "25", "28"], answer: "25" },
+                    { question: "What is 33 + 67?", options: ["97", "98", "99", "100"], answer: "100" }
+                ]
+            },
+            english: {
+                easy: [
+                    { question: "What is the plural of 'cat'?", options: ["cats", "cates", "cattes", "cat"], answer: "cats" },
+                    { question: "Which word is a noun?", options: ["run", "blue", "happy", "dog"], answer: "dog" },
+                    { question: "What is the opposite of 'hot'?", options: ["warm", "cold", "cool", "fire"], answer: "cold" },
+                    { question: "Which of these is a vowel?", options: ["B", "C", "A", "D"], answer: "A" },
+                    { question: "Which word is a verb?", options: ["sing", "red", "fast", "sky"], answer: "sing" },
+                    { question: "What is the past tense of 'eat'?", options: ["ate", "eated", "eats", "eaten"], answer: "ate" }
+                ],
+                medium: [
+                    { question: "What is a synonym for 'happy'?", options: ["sad", "joyful", "angry", "sleepy"], answer: "joyful" },
+                    { question: "What is the correct article: ___ apple?", options: ["an", "a", "the", "none"], answer: "an" },
+                    { question: "What is the comparative of 'big'?", options: ["bigger", "biggest", "more big", "bigly"], answer: "bigger" },
+                    { question: "Which is a proper noun?", options: ["dog", "book", "Paris", "girl"], answer: "Paris" },
+                    { question: "Which sentence is correct?", options: ["She can sings well", "She can sing well", "She can sang well", "She sing well"], answer: "She can sing well" },
+                    { question: "What is the past tense of 'go'?", options: ["goed", "went", "gone", "going"], answer: "went" }
+                ],
+                hard: [
+                    { question: "What is a synonym for 'benevolent'?", options: ["evil", "kind", "indifferent", "selfish"], answer: "kind" },
+                    { question: "Which sentence is grammatically correct?", options: ["I don't knows him", "I don't know him", "I don't knowed him", "I don't knowing him"], answer: "I don't know him" },
+                    { question: "What is the correct plural of 'cactus'?", options: ["cactuses", "cacti", "cactii", "cactus"], answer: "cacti" },
+                    { question: "Which word is an adjective?", options: ["happiness", "quickly", "blue", "run"], answer: "blue" },
+                    { question: "What is the past tense of 'write'?", options: ["write", "wrote", "written", "writing"], answer: "wrote" },
+                    { question: "Which word is spelled correctly?", options: ["definately", "definitely", "definitly", "definitively"], answer: "definitely" }
+                ]
+            },
+            gk: {
+                easy: [
+                    { question: "Who is the President of the USA?", options: ["Obama", "Trump", "Biden", "Bush"], answer: "Biden" },
+                    { question: "What is the capital of France?", options: ["London", "Paris", "Berlin", "Madrid"], answer: "Paris" },
+                    { question: "Which planet is known as the Red Planet?", options: ["Earth", "Mars", "Venus", "Saturn"], answer: "Mars" },
+                    { question: "Which ocean is the largest?", options: ["Atlantic", "Pacific", "Indian", "Arctic"], answer: "Pacific" },
+                    { question: "What is the largest country by area?", options: ["USA", "China", "Russia", "India"], answer: "Russia" },
+                    { question: "What is the smallest country in the world?", options: ["Vatican City", "Monaco", "Nauru", "Malta"], answer: "Vatican City" }
+                ],
+                medium: [
+                    { question: "Who invented the telephone?", options: ["Thomas Edison", "Alexander Graham Bell", "Nikola Tesla", "Michael Faraday"], answer: "Alexander Graham Bell" },
+                    { question: "Which is the longest river in the world?", options: ["Amazon", "Nile", "Yangtze", "Mississippi"], answer: "Nile" },
+                    { question: "Which country is known as the Land of the Rising Sun?", options: ["China", "South Korea", "Japan", "Thailand"], answer: "Japan" },
+                    { question: "What is the tallest mountain in the world?", options: ["Mount Everest", "K2", "Kangchenjunga", "Makalu"], answer: "Mount Everest" },
+                    { question: "In which year did World War II end?", options: ["1943", "1944", "1945", "1946"], answer: "1945" },
+                    { question: "What is the symbol for gold in the periodic table?", options: ["Ag", "Au", "Pb", "Fe"], answer: "Au" }
+                ],
+                hard: [
+                    { question: "Who is the author of the book '1984'?", options: ["George Orwell", "Aldous Huxley", "Ernest Hemingway", "Mark Twain"], answer: "George Orwell" },
+                    { question: "What is the capital of Australia?", options: ["Sydney", "Melbourne", "Canberra", "Brisbane"], answer: "Canberra" },
+                    { question: "What is the chemical symbol for silver?", options: ["Ag", "Al", "Si", "Sl"], answer: "Ag" },
+                    { question: "Who is known as the father of modern physics?", options: ["Isaac Newton", "Albert Einstein", "Niels Bohr", "Galileo"], answer: "Albert Einstein" },
+                    { question: "What is the largest desert in the world?", options: ["Sahara", "Arabian", "Gobi", "Antarctic"], answer: "Antarctic" },
+                    { question: "Who discovered penicillin?", options: ["Louis Pasteur", "Alexander Fleming", "Marie Curie", "Charles Darwin"], answer: "Alexander Fleming" }
+                ]
+            },
+            science: {
+                easy: [
+                    { question: "What is the boiling point of water?", options: ["90°C", "100°C", "110°C", "120°C"], answer: "100°C" },
+                    { question: "Which gas do plants absorb from the air?", options: ["Oxygen", "Carbon Dioxide", "Nitrogen", "Hydrogen"], answer: "Carbon Dioxide" },
+                    { question: "What is the chemical symbol for water?", options: ["O2", "H2O", "CO2", "HO2"], answer: "H2O" },
+                    { question: "Which planet is closest to the Sun?", options: ["Venus", "Earth", "Mercury", "Mars"], answer: "Mercury" },
+                    { question: "What is the force that pulls objects towards Earth?", options: ["Magnetism", "Friction", "Gravity", "Electricity"], answer: "Gravity" },
+                    { question: "What is the primary source of energy for the Earth?", options: ["Moon", "Earth's core", "The Sun", "Wind"], answer: "The Sun" }
+                ],
+                medium: [
+                    { question: "What is the process by which plants make their own food?", options: ["Respiration", "Photosynthesis", "Digestion", "Transpiration"], answer: "Photosynthesis" },
+                    { question: "Which element is necessary for respiration in humans?", options: ["Oxygen", "Carbon Dioxide", "Nitrogen", "Hydrogen"], answer: "Oxygen" },
+                    { question: "What is the freezing point of water?", options: ["0°C", "-10°C", "10°C", "32°F"], answer: "0°C" },
+                    { question: "What is the chemical formula for carbon dioxide?", options: ["CO", "CO2", "C2O", "CO3"], answer: "CO2" },
+                    { question: "Which planet has the most moons?", options: ["Earth", "Mars", "Jupiter", "Saturn"], answer: "Jupiter" },
+                    { question: "What is the speed of light?", options: ["300,000 km/s", "1,000,000 km/s", "500,000 km/s", "150,000 km/s"], answer: "300,000 km/s" }
+                ],
+                hard: [
+                    { question: "What is the most abundant element in Earth's crust?", options: ["Oxygen", "Silicon", "Iron", "Aluminum"], answer: "Oxygen" },
+                    { question: "What is the chemical element with the atomic number 79?", options: ["Platinum", "Gold", "Silver", "Copper"], answer: "Gold" },
+                    { question: "What is the center of an atom called?", options: ["Electron", "Neutron", "Nucleus", "Proton"], answer: "Nucleus" },
+                    { question: "What is the process by which plants release water vapor?", options: ["Evaporation", "Transpiration", "Photosynthesis", "Respiration"], answer: "Transpiration" },
+                    { question: "Which element has the atomic number 6?", options: ["Carbon", "Nitrogen", "Oxygen", "Helium"], answer: "Carbon" },
+                    { question: "Which gas makes up most of the Earth's atmosphere?", options: ["Oxygen", "Carbon Dioxide", "Nitrogen", "Hydrogen"], answer: "Nitrogen" }
+                ]
+            }
+        };
+    </script>
+</body>
+</html>
